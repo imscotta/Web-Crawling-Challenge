@@ -1,6 +1,6 @@
 # <!-- ### Part 2: Design Your Climate App
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template, redirect
 
 # Python SQL toolkit and Object Relational Mapper
 import sqlalchemy
@@ -14,23 +14,21 @@ from bs4 import BeautifulSoup
 import requests
 import pymongo
 
-# Import API key
-from api_keys import password
-
 # Import Python File
 import scrape_mars
 
-# Initialize PyMongo to work with MongoDBs
-# client = pymongo.MongoClient("mongodb+srv://admin:" + password + "@cluster0.0dopl0q.mongodb.net/?retryWrites=true&w=majority", server_api=ServerApi('1'))
-
-# Define database and collection
-db = client.test
-collection = db.items
-
-app = Flask(__name__)
 from flask_pymongo import PyMongo
+app = Flask(__name__)
+
+# from flask_pymongo import PyMongo
 app.config["MONGO_URI"] = "mongodb://localhost:27017/mars_app"
+conn = 'mongodb://localhost:27017'
+client = pymongo.MongoClient(conn)
 mongo = PyMongo(app)
+
+# # Define database and collection
+db = client.mars
+# collection = db.items
 
 # * `/`
 #     * Homepage.
@@ -39,7 +37,6 @@ mongo = PyMongo(app)
 @app.route("/")
 def index():
     mars = mongo.db.mars.find_one()
-
     return render_template("index.html", mars=mars)
 
 # * `/api/v1.0/scrape`
@@ -50,11 +47,11 @@ def index():
 def scrape():
     # Run the scrape function
     mars = mongo.db.mars
-    mars_data = scrape_mars.scrape_info()
+    # mars_data = scrape_mars.scrape_info()
 
-    mars_data = scrape_mars.scrape_all()
-    mars.update({}, mars_data, upsert=True)
-
+    mars_data = scrape_mars.scrape()
+    print(mars_data)
+    mars.update_many({}, {"$set": mars_data}, upsert=True)
     return redirect('/', code=302)
 
 if __name__ == "__main__":

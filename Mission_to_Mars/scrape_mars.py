@@ -1,8 +1,17 @@
+# Import the dependencies.
+from splinter import Browser
+from bs4 import BeautifulSoup
+from webdriver_manager.chrome import ChromeDriverManager
+
 # Dependencies
 from bs4 import BeautifulSoup
 import requests
 
 def scrape():
+    # Setup splinter
+    executable_path = {'executable_path': ChromeDriverManager().install()}
+    browser = Browser('chrome', **executable_path, headless=False)
+
     #MArs news
     # URL of page to be scraped
     url = 'https://redplanetscience.com/'
@@ -56,7 +65,7 @@ def scrape():
     print(soup.prettify())
     #find the featured image, its actually not in the html
     featured_image_url = soup.find('img', class_='headerimage fade-in')['src']
-    featured_image_url = url + featured_image_url
+    featured_image_url = url + "/" + featured_image_url
     print(featured_image_url)
 
     #Mars Facts
@@ -99,12 +108,12 @@ def scrape():
     #Mars Hemisphere
     # URL of page to be scraped
     url1 = 'https://marshemispheres.com/cerberus.html'
-    url2 = 'https://marshemispheres.com/cerberus.html'
-    url3 = 'https://marshemispheres.com/cerberus.html'
-    url4 = 'https://marshemispheres.com/cerberus.html'
+    url2 = 'https://marshemispheres.com/schiaparelli.html'
+    url3 = 'https://marshemispheres.com/syrtis.html'
+    url4 = 'https://marshemispheres.com/valles.html'
     # Retrieve page with the requests module
     response1 = requests.get(url1)
-    browser.visit(1url)
+    browser.visit(url1)
     html1 = browser.html
     response2 = requests.get(url2)
     browser.visit(url2)
@@ -126,27 +135,26 @@ def scrape():
     print(soup3.prettify())
     print(soup4.prettify())
     # find images and titles
-    img1 = soup.find('img', class_='wide-image')['src']
-    title1 = soup.find('h2', class_='title').text
-    img2 = soup.find('img', class_='wide-image')['src']
-    title2 = soup.find('h2', class_='title').text
-    img3 = soup.find('img', class_='wide-image')['src']
-    title3 = soup.find('h2', class_='title').text
-    img4 = soup.find('img', class_='wide-image')['src']
-    title4 = soup.find('h2', class_='title').text
+    img1 = soup1.find('img', class_='wide-image')['src']
+    title1 = soup1.find('h2', class_='title').text
+    img2 = soup2.find('img', class_='wide-image')['src']
+    title2 = soup2.find('h2', class_='title').text
+    img3 = soup3.find('img', class_='wide-image')['src']
+    title3 = soup3.find('h2', class_='title').text
+    img4 = soup4.find('img', class_='wide-image')['src']
+    title4 = soup4.find('h2', class_='title').text
     hemisphere_image_urls = [
-        {"title": img1, "img_url": title1},
-        {"title": img2, "img_url": title2},
-        {"title": img3, "img_url": title3},
-        {"title": img4, "img_url": title4},
+        {"title": title1, "img_url": url1 + "/" + img1},
+        {"title": title2, "img_url": url2 + "/" + img2},
+        {"title": title3, "img_url": url3 + "/" + img3},
+        {"title": title4, "img_url": url4 + "/" + img4},
     ]
-
     #Results variables
-    mars_data = [
-        {"articles": articles[0]},
-        {"featured_image": featured_image_url},
-        {"mars_info": mars_info},
-        {"images_urls": hemisphere_image_urls}
+    mars_data = {
+        "articles": articles[0],
+        "featured_image": featured_image_url,
+        "mars_info": mars_info,
+        "images_urls": hemisphere_image_urls
     }
-
+    print(mars_data)
     return mars_data
